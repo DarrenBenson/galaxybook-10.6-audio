@@ -87,10 +87,15 @@ status of `0xb000` after a write is **not** an acknowledgement (empty addresses
 return it too); a present device echoes its registers back on read, an empty
 address reads `0xff`.
 
+## Notes
+
+* The internal microphone (a PDM digital mic on pin `0x12`) works out of the
+  box and is unaffected by this recipe. **Do not drive the codec's GPIOs**
+  (verbs `0x715`–`0x717`): doing so wedges the mic into a full-scale rail until
+  the codec init runs again or the machine reboots.
+
 ## Not solved
 
-* **Internal microphone** — a PDM digital mic on pin `0x12`; delivers a flat
-  signal. Unconfigured in the same way; sequence not yet extracted.
 * Jack switching is polled (≤1 s latency), not event-driven.
 * Whether the amps auto-standby after long idle is unverified.
 
