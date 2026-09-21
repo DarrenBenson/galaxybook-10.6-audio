@@ -51,7 +51,7 @@ one is live, and the jack is detected on mic pin `0x18`.
 
 ```
 sudo pacman -S alsa-tools        # for hda-verb (Debian/Ubuntu: apt install alsa-tools)
-git clone https://github.com/<you>/galaxybook-10.6-audio
+git clone https://github.com/DarrenBenson/galaxybook-10.6-audio
 cd galaxybook-10.6-audio && sudo ./install.sh
 ```
 
