@@ -1,0 +1,13 @@
+[Unit]
+Description=Switch Galaxy Book 10.6 audio between speakers and jack on plug/unplug
+After=galaxybook-audio.service sound.target
+Wants=galaxybook-audio.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/galaxybook-jack-watch
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

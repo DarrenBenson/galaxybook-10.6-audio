@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Galaxy Book 10.6: switch ALC298 routing between the internal speakers (0) and
+# the 3.5mm jack (1) when headphones are plugged in or removed. Presence comes
+# from the codec's pin-sense on mic pin 0x18, which is what the Windows driver
+# uses for this combo jack. Polls once a second; hda-verb needs CAP_SYS_RAWIO.
+DEV=/dev/snd/hwC0D0
+LIB=/usr/local/lib/galaxybook-audio
+sense() { hda-verb "$DEV" 0x18 0xf09 0x0 2>/dev/null | sed -n 's/.*value = 0x\([0-9a-fA-F]*\).*/\1/p'; }
+present() { local v; v=$(sense); [ -n "$v" ] && (( 0x$v & 0x80000000 )); }
+last=""
+while :; do
+  if present; then cur=1; else cur=0; fi
+  if [ "$cur" != "$last" ]; then
+    if (cd "$LIB" && python3 ./setHeadphone.py "$cur" >/dev/null 2>&1); then
+      logger -t galaxybook-jack "jack $( [ "$cur" = 1 ] && echo plugged || echo removed ): routing -> $cur"
+      last=$cur
+    fi
+  fi
+  sleep 1
+done

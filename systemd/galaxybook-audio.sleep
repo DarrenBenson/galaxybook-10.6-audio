@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# COEF registers are lost across suspend; re-apply the ALC298 init on resume.
+case "$1/$2" in
+  post/*) /usr/local/bin/galaxybook-audio-init 0 || true ;;
+esac

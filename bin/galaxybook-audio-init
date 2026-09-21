@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Initialise audio output on the Samsung Galaxy Book 10.6 (SM-W627, SSID 144d:c150).
+#
+# Firmware leaves both the ALC298's output stage and the two I2C speaker amps
+# (at 0x34 / 0x35 on the codec's I2C master) unconfigured. Sequence:
+#   1. codec output stage        - Aurelien Croc's COEF init (GPL-2.0, Galaxy Book 12)
+#   2. codec routing = speaker (0)  - route 1 selects the 3.5mm jack instead;
+#                                  same 0/1 semantics as the Galaxy Book 12
+#   3. amp registers MODE0->2->1 - extracted from the Windows driver's c150 routine
+# Speakers and jack share pin 0x17; switching between them on jack insert is not
+# automated yet (Windows uses mic-pin 0x18 jack detect).
+set -u
+DIR=/usr/local/lib/galaxybook-audio
+DEV=/dev/snd/hwC0D0
+ROUTE=${1:-0}      # 0 = internal speakers (default), 1 = 3.5mm jack
+for _ in $(seq 1 50); do [ -e "$DEV" ] && break; sleep 0.2; done
+[ -e "$DEV" ] || { echo "galaxybook-audio: $DEV never appeared" >&2; exit 1; }
+cd "$DIR" || exit 1
+python3 ./initializeALC298.py            || { echo "galaxybook-audio: codec init failed" >&2; exit 1; }
+python3 ./setHeadphone.py "$ROUTE"       || { echo "galaxybook-audio: routing failed" >&2; exit 1; }
+python3 ./amp_replay.py MODE0 MODE2 MODE1 >/dev/null || { echo "galaxybook-audio: amp init failed" >&2; exit 1; }
+echo "galaxybook-audio: codec + amps initialised (routing $ROUTE)"

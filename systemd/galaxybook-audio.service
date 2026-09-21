@@ -1,0 +1,13 @@
+[Unit]
+Description=Initialise Realtek ALC298 output stage (Galaxy Book 10.6)
+Documentation=https://github.com/Teetoow/SamsungGalaxyBook12
+After=sound.target
+Wants=sound.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/galaxybook-audio-init 0
+
+[Install]
+WantedBy=multi-user.target
