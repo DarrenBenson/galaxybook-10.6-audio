@@ -34,7 +34,8 @@ The firmware leaves two things unconfigured that only the Windows driver sets:
    per-device table.
 
 Speakers and jack share codec pin `0x17`; the codec's routing selects which
-one is live, and the jack is detected on mic pin `0x18`.
+one is live. Plug detection is `0x17`'s own pin-sense (the mic pin `0x18` only
+asserts for 4-pole headsets, so plain headphones never trigger it).
 
 ## What this installs
 
@@ -43,7 +44,7 @@ one is live, and the jack is detected on mic pin `0x18`.
 | `bin/galaxybook-audio-init [0\|1]` | applies the full recipe: codec init → routing (`0` speakers / `1` jack) → amplifier registers |
 | `systemd/galaxybook-audio.service` | runs it at boot |
 | `systemd/galaxybook-audio.sleep` | runs it again on resume (codec and amp state do not survive suspend) |
-| `bin/galaxybook-jack-watch` + `.service` | polls jack-sense on pin `0x18` once a second and flips routing on plug/unplug |
+| `bin/galaxybook-jack-watch` + `.service` | polls jack-sense on pin `0x17` once a second and flips routing on plug/unplug |
 | `wireplumber/51-alc298-no-suspend.conf` | stops WirePlumber suspending the ALSA node, which powers the output stage back down |
 | `scripts/` | the pieces the wrapper calls (see Credits) |
 
